@@ -12,7 +12,6 @@ const App = () => {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
-  const [error, setError] = useState(null);
   const [isShowModal, setIsShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentImage, setCurrentImage] = useState(null);
@@ -41,7 +40,6 @@ const App = () => {
         setData(prevState => [...prevState, ...dataGallery.data.hits]);
         setTotalPage(Math.ceil(dataGallery.data.totalHits / PER_PAGE));
       } catch (error) {
-        setError({ error });
         console.log('ERROR', error);
         Notify.failure('Oops, something went wrong! Try again later.');
       } finally {
