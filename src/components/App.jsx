@@ -19,48 +19,34 @@ const App = () => {
   const [tags, setTags] = useState('');
 
   useEffect(() => {
+    const getImages = async () => {
+      setIsLoading(true);
+
+      try {
+        const dataGallery = await getImagesApi(searchText, currentPage);
+
+        if (dataGallery.data.hits.length && currentPage === 1) {
+          Notify.success(`We found ${dataGallery.data.totalHits} images.`);
+        }
+
+        if (!dataGallery.data.hits.length) {
+          Notify.failure(
+            'Sorry, there are no images matching your search query. Please try again.'
+          );
+        }
+        setData(prevState => [...prevState, ...dataGallery.data.hits]);
+        setTotalPage(Math.ceil(dataGallery.data.totalHits / PER_PAGE));
+      } catch (error) {
+        setError({ error });
+        console.log('ERROR', error);
+        Notify.failure('Oops, something went wrong! Try again later.');
+      } finally {
+        setIsLoading(false);
+        Loading.remove();
+      }
+    };
     getImages();
   }, [searchText, currentPage]);
-
-  // componentDidUpdate(_, prevState) {
-  //   const { searchText, currentPage } = this.state;
-
-  //   if (
-  //     prevState.searchText !== searchText ||
-  //     prevState.currentPage !== currentPage
-  //   ) {
-  //     this.setState({
-  //       isLoading: true,
-  //     });
-  //     this.getImages();
-  //   }
-  // }
-
-  const getImages = async () => {
-    setIsLoading(true);
-    try {
-      const dataGallery = await getImagesApi(searchText, currentPage);
-
-      if (dataGallery.data.hits.length && currentPage === 1) {
-        Notify.success(`We found ${dataGallery.data.totalHits} images.`);
-      }
-
-      if (!dataGallery.data.hits.length) {
-        Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-      }
-      setData(prevState => [...prevState, ...dataGallery.data.hits]);
-      setTotalPage(Math.ceil(dataGallery.data.totalHits / PER_PAGE));
-    } catch (error) {
-      setError({ error });
-      console.log('ERROR', error);
-      Notify.failure('Oops, something went wrong! Try again later.');
-    } finally {
-      setIsLoading(false);
-      Loading.remove();
-    }
-  };
 
   const handleSearch = searchText => {
     setSearchText(searchText);
