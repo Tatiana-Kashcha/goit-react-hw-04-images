@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { Loading } from 'notiflix/build/notiflix-loading-aio';
 import Searchbar from 'components/Searchbar/Searchbar';
@@ -7,36 +7,37 @@ import { getImagesApi, PER_PAGE } from 'api/getImagesApi';
 import { Button } from 'components/Button/Button';
 import Modal from 'components/Modal/Modal';
 
-export default class App extends Component {
-  state = {
-    searchText: '',
-    data: [],
-    currentPage: 1,
-    totalPage: 0,
-    error: null,
-    isShowModal: false,
-    isLoading: false,
-    currentImage: null,
-    tags: '',
-  };
+const App = () => {
+  const [searchText, setSearchText] = useState('');
+  const [data, setData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(0);
+  const [error, setError] = useState(null);
+  const [isShowModal, setIsShowModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentImage, setCurrentImage] = useState(null);
+  const [tags, setTags] = useState('');
 
-  componentDidUpdate(_, prevState) {
-    const { searchText, currentPage } = this.state;
+  useEffect(() => {
+    setIsLoading(true);
+    getImages();
+  }, [searchText, currentPage]);
 
-    if (
-      prevState.searchText !== searchText ||
-      prevState.currentPage !== currentPage
-    ) {
-      this.setState({
-        isLoading: true,
-      });
-      this.getImages();
-    }
-  }
+  // componentDidUpdate(_, prevState) {
+  //   const { searchText, currentPage } = this.state;
 
-  getImages = async () => {
-    const { searchText, currentPage } = this.state;
+  //   if (
+  //     prevState.searchText !== searchText ||
+  //     prevState.currentPage !== currentPage
+  //   ) {
+  //     this.setState({
+  //       isLoading: true,
+  //     });
+  //     this.getImages();
+  //   }
+  // }
 
+  const getImages = async () => {
     try {
       const dataGallery = await getImagesApi(searchText, currentPage);
 
@@ -49,28 +50,37 @@ export default class App extends Component {
           'Sorry, there are no images matching your search query. Please try again.'
         );
       }
-      this.setState(prevState => ({
-        data: [...prevState.data, ...dataGallery.data.hits],
-        totalPage: Math.ceil(dataGallery.data.totalHits / PER_PAGE),
-      }));
+      setData(prevState => [...prevState.data, ...dataGallery.data.hits]),
+        setTotalPage(Math.ceil(dataGallery.data.totalHits / PER_PAGE));
+
+      // this.setState(prevState => ({
+      //   data: [...prevState.data, ...dataGallery.data.hits],
+      //   totalPage: Math.ceil(dataGallery.data.totalHits / PER_PAGE),
+      // }));
     } catch (error) {
-      this.setState({ error });
+      setError({ error });
+      // this.setState({ error });
       console.log('ERROR', error);
       Notify.failure('Oops, something went wrong! Try again later.');
     } finally {
-      this.setState({ isLoading: false });
+      setIsLoading(false);
+      // this.setState({ isLoading: false });
       Loading.remove();
     }
   };
 
-  handleSearch = searchText => {
-    this.setState({ searchText, currentPage: 1, data: [] });
+  const handleSearch = searchText => {
+    setSearchText(searchText);
+    setCurrentPage(1);
+    setData([]);
+    // this.setState({ searchText, currentPage: 1, data: [] });
   };
 
-  handleLoadMore = () => {
-    this.setState(prevState => ({
-      currentPage: prevState.currentPage + 1,
-    }));
+  const handleLoadMore = () => {
+    setCurrentPage(prevState => prevState.currentPage + 1);
+    // this.setState(prevState => ({
+    //   currentPage: prevState.currentPage + 1,
+    // }));
   };
 
   showModal = (currentImage, tags) => {
@@ -85,36 +95,21 @@ export default class App extends Component {
     this.setState({ isShowModal: false });
   };
 
-  render() {
-    const {
-      data,
-      isLoading,
-      currentPage,
-      totalPage,
-      isShowModal,
-      currentImage,
-      tags,
-    } = this.state;
-    console.log(this.state); //для контроля
-
-    return (
-      <>
-        <Searchbar onSubmit={this.handleSearch} />
-        {isLoading && Loading.arrows()}
-        {totalPage > 0 && (
-          <ImageGallery data={data} showModal={this.showModal} />
-        )}
-        {totalPage > currentPage && !isLoading && (
-          <Button onLoadMore={this.handleLoadMore} />
-        )}
-        {isShowModal && (
-          <Modal
-            currentImage={currentImage}
-            tags={tags}
-            closeModal={this.closeModal}
-          />
-        )}
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <Searchbar onSubmit={handleSearch} />
+      {isLoading && Loading.arrows()}
+      {totalPage > 0 && <ImageGallery data={data} showModal={showModal} />}
+      {totalPage > currentPage && !isLoading && (
+        <Button onLoadMore={handleLoadMore} />
+      )}
+      {isShowModal && (
+        <Modal
+          currentImage={currentImage}
+          tags={tags}
+          closeModal={closeModal}
+        />
+      )}
+    </>
+  );
+};
