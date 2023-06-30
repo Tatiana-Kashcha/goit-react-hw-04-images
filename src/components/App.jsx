@@ -50,7 +50,8 @@ const App = () => {
           'Sorry, there are no images matching your search query. Please try again.'
         );
       }
-      setData(prevState => [...prevState.data, ...dataGallery.data.hits]),
+      // setData(prevState => [...prevState.data, ...dataGallery.data.hits]),
+      setData(prevState => [...prevState, ...dataGallery.data.hits]),
         setTotalPage(Math.ceil(dataGallery.data.totalHits / PER_PAGE));
 
       // this.setState(prevState => ({
@@ -58,7 +59,7 @@ const App = () => {
       //   totalPage: Math.ceil(dataGallery.data.totalHits / PER_PAGE),
       // }));
     } catch (error) {
-      setError({ error });
+      setError(error);
       // this.setState({ error });
       console.log('ERROR', error);
       Notify.failure('Oops, something went wrong! Try again later.');
@@ -77,22 +78,28 @@ const App = () => {
   };
 
   const handleLoadMore = () => {
-    setCurrentPage(prevState => prevState.currentPage + 1);
+    setCurrentPage(prevState => prevState + 1);
+    // setCurrentPage(prevState => prevState.currentPage + 1);
     // this.setState(prevState => ({
     //   currentPage: prevState.currentPage + 1,
     // }));
   };
 
-  showModal = (currentImage, tags) => {
-    this.setState({
-      isShowModal: true,
-      currentImage: currentImage,
-      tags: tags,
-    });
+  const showModal = (currentImage, tags) => {
+    setIsShowModal(true);
+    setCurrentImage(currentImage);
+    setTags(tags);
+
+    // this.setState({
+    //   isShowModal: true,
+    //   currentImage: currentImage,
+    //   tags: tags,
+    // });
   };
 
-  closeModal = () => {
-    this.setState({ isShowModal: false });
+  const closeModal = () => {
+    setIsShowModal(false);
+    // this.setState({ isShowModal: false });
   };
 
   return (
