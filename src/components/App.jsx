@@ -19,16 +19,8 @@ const App = () => {
   const [tags, setTags] = useState('');
 
   useEffect(() => {
-    setIsLoading(true);
     getImages();
   }, [searchText, currentPage]);
-
-  // useEffect((useCallback()
-  //    => getImages()) {
-  //     setIsLoading(true);
-  //   },
-  //   [searchText, currentPage]
-  // );
 
   // componentDidUpdate(_, prevState) {
   //   const { searchText, currentPage } = this.state;
@@ -45,6 +37,7 @@ const App = () => {
   // }
 
   const getImages = async () => {
+    setIsLoading(true);
     try {
       const dataGallery = await getImagesApi(searchText, currentPage);
 
@@ -61,7 +54,6 @@ const App = () => {
       setTotalPage(Math.ceil(dataGallery.data.totalHits / PER_PAGE));
     } catch (error) {
       setError({ error });
-      // this.setState({ error });
       console.log('ERROR', error);
       Notify.failure('Oops, something went wrong! Try again later.');
     } finally {
