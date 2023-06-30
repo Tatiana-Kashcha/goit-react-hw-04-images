@@ -19,6 +19,10 @@ const App = () => {
   const [tags, setTags] = useState('');
 
   useEffect(() => {
+    if (!searchText) {
+      return;
+    }
+
     const getImages = async () => {
       setIsLoading(true);
 
