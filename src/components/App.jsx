@@ -27,7 +27,7 @@ const App = () => {
 
       try {
         const dataGallery = await getImagesApi(searchText, currentPage);
-
+        console.log(dataGallery);
         if (dataGallery.data.hits.length && currentPage === 1) {
           Notify.success(`We found ${dataGallery.data.totalHits} images.`);
         }
